@@ -1,0 +1,49 @@
+# standard imports
+import sys
+from PyQt5.QtCore import QDate
+from PyQt5.QtWidgets import QLabel, QComboBox, QDoubleSpinBox, QCalendarWidget, QDialog, QApplication, QGridLayout
+from PyQt5 import QtCore
+from decimal import Decimal
+# imports for graphing
+import pyqtgraph as pg
+######imports for data
+import pandas_datareader.data as web
+import datetime
+#Importing Libraries
+import requests
+import pandas as pd
+import datetime
+from bokeh.plotting import figure, show, output_file
+
+API_KEY = '5QJGYFD0Z2TPHMZQ'
+stock_name = 'AAME'
+r = requests.get('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=' + stock_name + '&apikey=' + API_KEY)
+print("im here")
+print(r.status_code)
+result = r.json()
+dataForAllDays = result['Time Series (Daily)']
+
+#convert to dataframe
+df = pd.DataFrame.from_dict(dataForAllDays, orient='index')
+df = df.reset_index()
+#rename columns
+df = df.rename(index=str, columns={"index": "date", "1. open": "open", "2. high": "high", "3. low": "low", "4. close": "close","5. volume":"volume"})
+#Changing to datetime
+df['date'] = pd.to_datetime(df['date'])
+#Sort according to date
+df = df.sort_values(by=['date'])
+#Changing the datatype
+df.open = df.open.astype(float)
+df.close = df.close.astype(float)
+df.high = df.high.astype(float)
+df.low = df.low.astype(float)
+df.volume = df.volume.astype(int)
+#check the data
+df.head()
+#Check the datatype
+print("im here 2")
+df.info()
+inc = df.close > df.open
+dec = df.open > df.close
+print(df.date)
+print(df.close)
