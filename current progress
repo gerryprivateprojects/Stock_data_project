@@ -47,3 +47,62 @@ inc = df.close > df.open
 dec = df.open > df.close
 print(df.date)
 print(df.close)
+
+
+
+
+
+
+
+
+class GraphExample(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.myLayout = QGridLayout()
+        self.setLayout(self.myLayout)
+
+        # create plot
+        self.plt = pg.PlotWidget()
+        self.myLayout.addWidget(self.plt, 0, 0)
+        self.plt.showGrid(x=True, y=True)
+        self.plt.addLegend()
+        self.plt.setLabel('left', 'Rate')
+        self.plt.setLabel('bottom', 'Days')
+
+        self.plt.clear()
+        ####stock data
+        self.API_KEY = '5QJGYFD0Z2TPHMZQ'
+        self.tock_name = 'TSLA'
+        self.r = requests.get('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=' + stock_name + '&apikey=' + API_KEY)
+        self.result = r.json()
+        self.dataForAllDays = result['Time Series (Daily)']
+        self.df = pd.DataFrame.from_dict(dataForAllDays, orient='index')
+        self.df = df.reset_index()
+        self.df = df.rename(index=str, columns={"index": "date", "1. open": "open", "2. high": "high", "3. low": "low",
+                                           "4. close": "close", "5. volume": "volume"})
+        #self.df['date'] = pd.to_datetime(df['date'])
+
+
+        date_range = range(0, 10)  # should be equal to the number of days you want to have in your x-axis
+
+        self.plt.setXRange(0, 1000)  # should be as wide as the number of dates we want to show
+        self.plt.setYRange(0, 2000)  # should be as high as the max exchange
+
+        # rates to be plotted. You will want to get this from your self.data object
+        rates1 = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+        rates2 = [0, 1, 2, 4, 12, 14, 16, 17, 14, 22]
+        conversion3 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+        #x = range(0, 10)
+        #c1 = self.plt.plot(df.date, df.close, pen='b', symbol='x', symbolPen='b', symbolBrush=0.2, name='red')
+        c2 = self.plt.plot(date_range, rates2, pen='r', symbol='o', symbolPen='r', symbolBrush=0.2, name='blue')
+        #c1 = self.plt.plot(date_range, conversion3, pen='g', symbol='+', symbolPen='g', symbolBrush=0.2, name='green')
+
+
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    graph_example = GraphExample()
+    graph_example.show()
+    sys.exit(app.exec_())
